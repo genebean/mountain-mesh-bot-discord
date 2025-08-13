@@ -17,10 +17,12 @@ A simple Discord bot that welcomes new members with and prompts them to enagage 
 
 ### Running
 
-To run as is:
+To run as is, create a `.env` based on [example.env](./example.env) in the directory where you want to run the container and then run it like below:
 
 ```bash
-docker run --rm -it -v $(pwd)/.env:/src/.env mtnmeshbot:latest
+# There is no latest tag, but the main branch is mapped to a tag.
+# There are also semver based tags available such as v1.0.0
+docker run --rm -it -v $(pwd)/.env:/src/.env ghcr.io/genebean/mountain-mesh-bot-discord:main
 ```
 
 To manually update packages:
