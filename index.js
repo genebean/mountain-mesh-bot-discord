@@ -1,36 +1,34 @@
-require('dotenv').config();
+const { Client, GatewayIntentBits, PresenceUpdateStatus, ActivityType } = require('discord.js');
 
-const { Client, GatewayIntentBits } = require('discord.js');
+require('dotenv').config();
 
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers, // Required for guildMemberAdd event
-    // GatewayIntentBits.DirectMessages // Required to send DMs
-  ],
-  partials: ['CHANNEL'] // Needed to receive/send DMs
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildMembers
+  ]
 });
 
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  client.user.setStatus(PresenceUpdateStatus.Online);
+  client.user.setActivity('for humans to interact with', { type: ActivityType.Watching });
+
+  const channel = await client.channels.fetch(process.env.CHANNEL_ID)
+    .then(console.log("Finished fetching channel."));
 });
 
-client.on('guildMemberAdd', async member => {
-  // Send DM to the new member
-  // try {
-  //   await member.send(
-  //     `Hey ${member.user.username}, welcome to the Mountain Mesh Discord!\n` +
-  //     `We're a friendly group and look forward to getting to know you.`
-  //   );
-  // } catch (error) {
-  //   console.log(`Couldn't send DM to ${member.user.tag}. They might have DMs disabled.`);
-  // }
+client.on('guildMemberAdd', async (member) => {
+  try {
+    const channel = client.channels.cache.get(process.env.CHANNEL_ID);
 
-  // Send welcome message in the server's system channel or first text channel
-  const channel = member.guild.systemChannel || member.guild.channels.cache.find(ch => ch.type === 0); // 0 = GuildText
-  if (!channel) return;
-
-  channel.send(`Welcome ${member}, are you already meshing with us or just getting started?`);
+    channel.send(`Welcome ${member.displayName}, are you already meshing with us or just getting started?`)
+      .then(message => console.log(`Sent message: ${message.content}`))
+      .catch(console.error);
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
