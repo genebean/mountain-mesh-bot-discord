@@ -17,6 +17,8 @@ A simple Discord bot that welcomes new members with and prompts them to enagage 
 
 ### Running
 
+#### Docker
+
 To run as is, create a `.env` based on [example.env](./example.env) in the directory where you want to run the container and then run it like below:
 
 ```bash
@@ -25,6 +27,48 @@ To run as is, create a `.env` based on [example.env](./example.env) in the direc
 docker run --rm -it -v $(pwd)/.env:/src/.env ghcr.io/genebean/mountain-mesh-bot-discord:main
 ```
 
+#### Docker Compose
+
+Alternatively, a Docker compose file is also included that does the same as above.
+
+#### NixOS
+
+Here's an example of running decalratively in NixOS. In this setup...
+
+- the container is run via Podman as a regular user
+- it mounts the `.evn` file that is stored as a SOPS secret
+- if the secret changes, the container will restart
+- it updates every time it starts
+- the contents of where its volume(s) live is backed up by Restic
+
+```nix
+{ config, username, ... }: let
+  volume_base = "/orico/mountain-mesh-bot-discord";
+in {
+  virtualisation.oci-containers.containers = {
+    "mtnmesh_bot_discord" = {
+      autoStart = true;
+      image = "ghcr.io/genebean/mountain-mesh-bot-discord:main";
+      podman.user = username;
+      pull = "always";
+      volumes = [
+        "${volume_base}/.env:/src/.env"
+      ];
+    };
+  };
+
+  services.restic.backups.daily.paths = [ volume_base ];
+
+  sops.secrets.mtnmesh_bot_dot_env = {
+    owner = "${username}";
+    path = "${volume_base}/.env";
+    restartUnits = [ "${config.virtualisation.oci-containers.containers.mtnmesh_bot_discord.serviceName}" ];
+  };
+}
+```
+
+## Maintenance
+
 To manually update packages:
 
 ```bash
@@ -32,3 +76,5 @@ docker run --rm --name mtnmeshbot-updater -v $(pwd):/src -w /src \
 $(grep FROM Dockerfile |cut -d ' ' -f2) \
 npm upate
 ```
+
+Afterwards, check that things work and then create a pull request. On merge, a CI job runs to build the container and update the tag.
