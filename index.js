@@ -23,7 +23,7 @@ client.on('guildMemberAdd', async (member) => {
   try {
     const channel = client.channels.cache.get(process.env.CHANNEL_ID);
 
-    channel.send(`Welcome ${member.displayName}, are you already meshing with us or just getting started?`)
+    channel.send(`Welcome ${member.user}, are you already meshing with us or just getting started?`)
       .then(message => console.log(`Sent message: ${message.content}`))
       .catch(console.error);
   } catch (e) {
