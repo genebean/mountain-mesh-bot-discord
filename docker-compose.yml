@@ -1,6 +1,6 @@
 services:
   bot:
     #build: .
-    image: ghcr.io/genebean/mountain-mesh-bot-discord:main
+    image: ghcr.io/genebean/mountain-mesh-bot-discord:v1.0.0
     volumes:
       - '.env:/src/.env'
