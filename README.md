@@ -2,6 +2,8 @@
 
 A simple Discord bot that welcomes new members with and prompts them to enagage right away.
 
+![Banner](./assets/Bot_Banner_Dark-Discord.png)
+
 ## Features
 
 - Sends a friendly welcome message to new members in the server’s system channel.
