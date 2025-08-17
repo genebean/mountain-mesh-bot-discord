@@ -24,7 +24,7 @@ To run as is, create a `.env` based on [example.env](./example.env) in the direc
 ```bash
 # There is no latest tag, but the main branch is mapped to a tag.
 # There are also semver based tags available such as v1.0.0
-docker run --rm -it -v $(pwd)/.env:/src/.env ghcr.io/genebean/mountain-mesh-bot-discord:main
+docker run --rm -it -v $(pwd)/.env:/src/.env ghcr.io/genebean/mountain-mesh-bot-discord:v1.0.0
 ```
 
 #### Docker Compose
@@ -38,8 +38,9 @@ Here's an example of running decalratively in NixOS. In this setup...
 - the container is run via Podman as a regular user
 - it mounts the `.evn` file that is stored as a SOPS secret
 - if the secret changes, the container will restart
-- it updates every time it starts
 - the contents of where its volume(s) live is backed up by Restic
+- there is a systemd service named `podman-mtnmesh_bot_discord.service`
+- container logs are in journalctl tagged as `mtnmesh_bot_discord`
 
 ```nix
 { config, username, ... }: let
@@ -48,9 +49,7 @@ in {
   virtualisation.oci-containers.containers = {
     "mtnmesh_bot_discord" = {
       autoStart = true;
-      image = "ghcr.io/genebean/mountain-mesh-bot-discord:main";
-      podman.user = username;
-      pull = "always";
+      image = "ghcr.io/genebean/mountain-mesh-bot-discord:v1.0.0";
       volumes = [
         "${volume_base}/.env:/src/.env"
       ];
